@@ -51,10 +51,10 @@ if args.model is not None:
   model = keras.models.load_model(args.model)
 else:
   model = keras.models.Sequential()
-  model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2])))
+  model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
   model.add(Dropout(0.2))
-  #model.add(LSTM(256))
-  #model.add(Dropout(0.2))
+  model.add(LSTM(256))
+  model.add(Dropout(0.2))
   model.add(Dense(y.shape[1], activation='softmax'))
   model.compile(loss='categorical_crossentropy', optimizer='adam')
 
@@ -64,4 +64,4 @@ checkpoint = ModelCheckpoint(filepath, save_weights_only=False, monitor='loss', 
 
 # now iterate on our model, and find the best model
 print("Fitting model...")
-model.fit(X, y, epochs=20, batch_size=128, callbacks=[checkpoint])
+model.fit(X, y, epochs=20, batch_size=64, callbacks=[checkpoint])

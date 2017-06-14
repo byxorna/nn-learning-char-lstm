@@ -7,7 +7,7 @@ class TextLoader:
   # and provide you with data about it, like number of patterns, char count,
   # etc.
   # TODO: clean up text to remove undesirable characters
-  UNDESIRABLE_CHARS = ['\n', ' ', '!', '(', ')', '*', ',', '-', '.', ':', ';', '?', '[', ']', '_', '‘', '’', '“', '”', '\ufeff']
+  UNDESIRABLE_CHARS = ['\n', '!', '(', ')', '*', '-', ':', ';', '[', ']', '_', '‘', '’', '“', '”', '\ufeff']
   def __init__(self):
     # load ascii text and covert to lowercase
     self.raw_text = ""
