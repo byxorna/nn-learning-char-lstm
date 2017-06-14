@@ -26,3 +26,4 @@ pip install -r requirements.txt
 # TODO
 
 [ ] Seed training with an existing model to improve?
+[ ] Add more layers into the network with dropout to prevent overfitting - http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf

@@ -21,7 +21,8 @@ class TextLoader:
     self.raw_text = ""
     for f in files:
       #print("Loading input text from " + f)
-      self.raw_text += open(f).read().lower()
+      loaded_text = open(f).read().lower()
+      self.raw_text += ''.join([c for c in loaded_text if c not in self.UNDESIRABLE_CHARS])
     #"""the length of the raw text string"""
     self.num_chars = len(self.raw_text)
     #"""the unique sorted set of all characters in the loaded text"""

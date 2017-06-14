@@ -49,12 +49,14 @@ y = np_utils.to_categorical(dataY)
 model = Sequential()
 model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2])))
 model.add(Dropout(0.2))
+#model.add(LSTM(256))
+#model.add(Dropout(0.2))
 model.add(Dense(y.shape[1], activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam')
 
-# define the checkpoint
+# define the checkpoint, make sure to write the full model out
 filepath=args.checkpoint_dir + "/weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
-checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+checkpoint = ModelCheckpoint(filepath, save_weights_only=False, monitor='loss', verbose=1, save_best_only=True, mode='min')
 
 # now iterate on our model, and find the best model
 print("Fitting model...")
