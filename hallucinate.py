@@ -1,57 +1,47 @@
 #!/usr/bin/env python
 
+from loader import TextLoader
 import sys
 import argparse
 import numpy
-import os
 from keras.models import Sequential
 
 parser = argparse.ArgumentParser(
   formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--chars', type=int, default=1000, help='Number of characters to hallucinate')
+parser.add_argument('--input-dir', type=str, default="./input", help='Input dir to search for training data')
+parser.add_argument('--model', type=str, help='Model to load')
+parser.add_argument('seed_text', type=str, default="there once was a girl who ", nargs="*")
 args = parser.parse_args()
+print(args)
 
-SEED_TEXT = "".join(args)
-if SEED_TEXT is "":
-  SEED_TEXT = "there once was a girl who "
-  print("No seed text presented on argv, using a default: " + SEED_TEXT)
+if args.model is None:
+  print("No model supplied! Aborting")
+  sys.exit(1)
 
-MODELNAME = os.getenv('MODEL')
-if MODELNAME is None:
-  print("No MODEL= supplied! Aborting")
-  os.exit(1)
-
-input_dir = os.getenv("INPUT_DIR")
-if input_dir is None:
-  input_dir = "input"
 
 # load input files so we can determine what "vocab" was used to train the model
 # and we can scale our output
-raw_input_files = glob.glob(input_dir + "/*.txt")
-raw_text = ''
-for f in raw_input_files:
-  print("Loading input text: " + f)
-  raw_text += open(f).read().lower()
-chars = sorted(list(set(raw_text)))
-n_vocab = len(chars)
+loader = TextLoader()
+loader.load(files=glob.glob(args.input_dir + "/*.txt"))
 
 # load the network weights
 model = Sequential()
-model.load_weights(MODELNAME)
+model.load_weights(args.model)
 model.compile(loss='categorical_crossentropy', optimizer='adam')
 
 # we need to translate characters back to human readable from ints (ord()),
 # so use chr() when hallucinating.
 
 # pick a random seed
-pattern = [ord(c) for c in SEED_TEXT.lower()]
+pattern = [ord(c) for c in args.seed_text.lower()]
 print("Seed text:")
 print( "\"", ''.join([ord(value) for value in pattern]), "\"")
 # generate characters
-for i in range(parser.chars):
+for i in range(args.chars):
 	x = numpy.reshape(pattern, (1, len(pattern), 1))
   # normalize given the training set of data
-	x = x / float(n_vocab)
+	x = x / float(len(loader.uniq_chars))
 	prediction = model.predict(x, verbose=0)
 	index = numpy.argmax(prediction)
 	result = chr(index)

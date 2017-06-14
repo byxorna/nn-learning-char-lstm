@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import os
+import argparse
 import glob
 import numpy
+from loader import TextLoader
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
@@ -9,35 +11,17 @@ from keras.layers import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
 
-input_dir = os.getenv("INPUT_DIR")
-if input_dir is None:
-  input_dir = "input"
+parser = argparse.ArgumentParser(
+  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--input-dir', type=str, default="./input", help='Input dir to search for training data')
+parser.add_argument('--checkpoint-dir', type=str, default="./checkpoints", help='Dir to save checkpoint models to')
+args = parser.parse_args()
 
-checkpoint_dir = os.getenv("CHECKPOINT_DIR")
-if checkpoint_dir is None:
-  checkpoint_dir = "checkpoints"
+loader = TextLoader()
+loader.load(files=glob.glob(args.input_dir + "/*.txt"))
 
-
-# load ascii text and covert to lowercase
-raw_input_files = glob.glob(input_dir + "/*.txt")
-raw_text = ''
-for f in raw_input_files:
-  print("Loading input text: " + f)
-  raw_text += open(f).read().lower()
-
-print("Loaded " + str(len(raw_text)) + " total characters")
-
-# TODO: clean up text to remove undesirable characters
-# ['\n', ' ', '!', '(', ')', '*', ',', '-', '.', ':', ';', '?', '[', ']', '_',
-# ‘', '’', '“', '”', '\ufeff']
-
-# create mapping of unique chars to integers
-chars = sorted(list(set(raw_text)))
-char_to_int = dict((c, i) for i, c in enumerate(chars))
-#print(chars)
-
-n_chars = len(raw_text)
-n_vocab = len(chars)
+n_chars = loader.num_chars
+n_vocab = len(loader.uniq_chars)
 print( "Total Characters: ", n_chars)
 print( "Total Vocab: ", n_vocab)
 
@@ -45,22 +29,13 @@ seq_length = 100
 dataX = [] # will be an array of n_chars length, of char[100] patterns
 dataY = []
 for i in range(0, n_chars - seq_length, 1):
-  #print("before: " + str(len(dataX)))
-  seq_in = raw_text[i:i+seq_length] # input vector is the 100char context preceding target
-  #print(seq_in)
-  seq_out = raw_text[i+seq_length] # target vector is the next char
-  dataX.append([char_to_int[c] for c in seq_in])
-  #print("after: " + str(len(dataX)))
-  dataY.append(char_to_int[seq_out])
+  seq_in = loader.raw_text[i:i+seq_length] # input vector is the 100char context preceding target
+  seq_out = loader.raw_text[i+seq_length] # target vector is the next char
+  dataX.append([loader.char_to_int[c] for c in seq_in])
+  dataY.append(loader.char_to_int[seq_out])
 
-# pad dataX out as a multiple of seq_length
-#pads = seq_length - len(dataX) % seq_length
-#print("padding out input data by " + str(pads) + " empty chars")
-#for p in range(0, pads, 1):
-#  dataX.append(char_to_int[' '])
 n_patterns = len(dataX)
 
-#assert n_patterns == n_chars*seq_length
 print( "Total patterns: " + str(n_patterns))
 
 # reshape X to be [samples, time steps, features]
@@ -78,7 +53,7 @@ model.add(Dense(y.shape[1], activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam')
 
 # define the checkpoint
-filepath=checkpoint_dir + "/weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
+filepath=args.checkpoint_dir + "/weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
 checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
 
 # now iterate on our model, and find the best model
