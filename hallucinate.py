@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 
+import sys
+import argparse
 import numpy
 import os
-import sys
 from keras.models import Sequential
 
-NUM_CHARS_HALLUCINATE = 1000
+parser = argparse.ArgumentParser(
+  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--chars', type=int, default=1000, help='Number of characters to hallucinate')
+args = parser.parse_args()
 
-SEED_TEXT = "".join(sys.argv[1:])
+SEED_TEXT = "".join(args)
 if SEED_TEXT is "":
   SEED_TEXT = "there once was a girl who "
   print("No seed text presented on argv, using a default: " + SEED_TEXT)
@@ -40,11 +44,11 @@ model.compile(loss='categorical_crossentropy', optimizer='adam')
 # so use chr() when hallucinating.
 
 # pick a random seed
-pattern = [ord(c) for c in SEED_TEXT]
+pattern = [ord(c) for c in SEED_TEXT.lower()]
 print("Seed text:")
 print( "\"", ''.join([ord(value) for value in pattern]), "\"")
 # generate characters
-for i in range(NUM_CHARS_HALLUCINATE):
+for i in range(parser.chars):
 	x = numpy.reshape(pattern, (1, len(pattern), 1))
   # normalize given the training set of data
 	x = x / float(n_vocab)
