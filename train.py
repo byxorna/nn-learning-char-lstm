@@ -13,6 +13,11 @@ input_dir = os.getenv("INPUT_DIR")
 if input_dir is None:
   input_dir = "input"
 
+checkpoint_dir = os.getenv("CHECKPOINT_DIR")
+if checkpoint_dir is None:
+  checkpoint_dir = "checkpoints"
+
+
 # load ascii text and covert to lowercase
 raw_input_files = glob.glob(input_dir + "/*.txt")
 raw_text = ''
@@ -40,12 +45,12 @@ seq_length = 100
 dataX = [] # will be an array of n_chars length, of char[100] patterns
 dataY = []
 for i in range(0, n_chars - seq_length, 1):
-  print("before: " + str(len(dataX)))
+  #print("before: " + str(len(dataX)))
   seq_in = raw_text[i:i+seq_length] # input vector is the 100char context preceding target
-  print(seq_in)
+  #print(seq_in)
   seq_out = raw_text[i+seq_length] # target vector is the next char
   dataX.append([char_to_int[c] for c in seq_in])
-  print("after: " + str(len(dataX)))
+  #print("after: " + str(len(dataX)))
   dataY.append(char_to_int[seq_out])
 
 # pad dataX out as a multiple of seq_length
@@ -71,3 +76,12 @@ model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2])))
 model.add(Dropout(0.2))
 model.add(Dense(y.shape[1], activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam')
+
+# define the checkpoint
+filepath=checkpoint_dir + "/weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
+checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+callbacks_list = [checkpoint]
+
+# now iterate on our model, and find the best model
+print("Fitting model...")
+model.fit(X, y, epochs=20, batch_size=128, callbacks=callbacks_list)
