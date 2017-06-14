@@ -37,13 +37,37 @@ print( "Total Characters: ", n_chars)
 print( "Total Vocab: ", n_vocab)
 
 seq_length = 100
-dataX = []
+dataX = [] # will be an array of n_chars length, of char[100] patterns
 dataY = []
 for i in range(0, n_chars - seq_length, 1):
+  print("before: " + str(len(dataX)))
   seq_in = raw_text[i:i+seq_length] # input vector is the 100char context preceding target
+  print(seq_in)
   seq_out = raw_text[i+seq_length] # target vector is the next char
-  dataX.append(char_to_int[c] for c in seq_in)
+  dataX.append([char_to_int[c] for c in seq_in])
+  print("after: " + str(len(dataX)))
   dataY.append(char_to_int[seq_out])
 
+# pad dataX out as a multiple of seq_length
+#pads = seq_length - len(dataX) % seq_length
+#print("padding out input data by " + str(pads) + " empty chars")
+#for p in range(0, pads, 1):
+#  dataX.append(char_to_int[' '])
 n_patterns = len(dataX)
+
+#assert n_patterns == n_chars*seq_length
 print( "Total patterns: " + str(n_patterns))
+
+# reshape X to be [samples, time steps, features]
+X = numpy.reshape(numpy.array(dataX), (n_patterns, seq_length, 1))
+# normalize
+X = X / float(n_vocab)
+# one hot encode the output variable
+y = np_utils.to_categorical(dataY)
+
+# define the LSTM model
+model = Sequential()
+model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2])))
+model.add(Dropout(0.2))
+model.add(Dense(y.shape[1], activation='softmax'))
+model.compile(loss='categorical_crossentropy', optimizer='adam')
