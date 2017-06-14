@@ -2,12 +2,12 @@ http://machinelearningmastery.com/text-generation-lstm-recurrent-neural-networks
 
 # Training
 
-`--input-dir` is used to read input text files in that directory to train on. No validation datasets are used; we train on everything to have the most data for character occurrence. See `--help` for details on parameters.
+`--input-dir` is used to read input text files in that directory to train on. No validation datasets are used; we train on everything to have the most data for character occurrence. Use `--model` to pick up where you left off training.
 
 ```
 source bin/activate
 pip install -r requirements.txt
-./train.py
+./train.py --model ./checkpoints/sometempsave.hdf5
 ```
 
 # Hallucinating
@@ -25,5 +25,5 @@ pip install -r requirements.txt
 
 # TODO
 
-[ ] Seed training with an existing model to improve?
+[x] Seed training with an existing model to improve?
 [ ] Add more layers into the network with dropout to prevent overfitting - http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf

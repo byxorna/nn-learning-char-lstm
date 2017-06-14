@@ -4,7 +4,7 @@ import argparse
 import glob
 import numpy
 from loader import TextLoader
-from keras.models import Sequential
+import keras.models
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import LSTM
@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser(
   formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--input-dir', type=str, default="./input", help='Input dir to search for training data')
 parser.add_argument('--checkpoint-dir', type=str, default="./checkpoints", help='Dir to save checkpoint models to')
+parser.add_argument('--model', type=str, default=None, help='Model to bootstrap training from')
 args = parser.parse_args()
 
 loader = TextLoader()
@@ -46,13 +47,16 @@ X = X / float(n_vocab)
 y = np_utils.to_categorical(dataY)
 
 # define the LSTM model
-model = Sequential()
-model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2])))
-model.add(Dropout(0.2))
-#model.add(LSTM(256))
-#model.add(Dropout(0.2))
-model.add(Dense(y.shape[1], activation='softmax'))
-model.compile(loss='categorical_crossentropy', optimizer='adam')
+if args.model is not None:
+  model = keras.models.load_model(args.model)
+else:
+  model = keras.models.Sequential()
+  model.add(LSTM(256, input_shape=(X.shape[1], X.shape[2])))
+  model.add(Dropout(0.2))
+  #model.add(LSTM(256))
+  #model.add(Dropout(0.2))
+  model.add(Dense(y.shape[1], activation='softmax'))
+  model.compile(loss='categorical_crossentropy', optimizer='adam')
 
 # define the checkpoint, make sure to write the full model out
 filepath=args.checkpoint_dir + "/weights-improvement-{epoch:02d}-{loss:.4f}.hdf5"
