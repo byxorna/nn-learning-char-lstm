@@ -26,7 +26,7 @@ loader = TextLoader()
 loader.load(files=glob.glob(args.input_dir + "/*.txt"))
 
 # load and compile model, including weights and training config
-seq_length = 10
+seq_length = 5
 model = keras.models.load_model(args.model)
 start = numpy.random.randint(0, len(loader.words)-seq_length)
 pattern = [loader.word_to_int[c] for c in loader.words[start:start+seq_length]]

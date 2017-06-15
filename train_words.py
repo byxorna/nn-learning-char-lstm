@@ -26,7 +26,7 @@ n_vocab = len(loader.uniq_words)
 print( "Total words in training set: ", n_words)
 print( "Vocabulary: ", n_vocab)
 
-seq_length = 10
+seq_length = 5
 dataX = []
 dataY = []
 for i in range(0, n_words - seq_length, 1):
