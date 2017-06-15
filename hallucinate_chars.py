@@ -55,6 +55,6 @@ for i in range(args.chars):
   result = chr(index)
   #seq_in = [chr(value) for value in pattern]
   sys.stdout.write(result)
-  sys.stdout.flush()
   pattern.append(index)
   pattern = pattern[1:len(pattern)]
+sys.stdout.flush()

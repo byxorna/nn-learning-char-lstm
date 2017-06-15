@@ -1,5 +1,7 @@
 http://machinelearningmastery.com/text-generation-lstm-recurrent-neural-networks-python-keras/
 
+NOTE: hallucination doesnt strictly speaking work yet. As of now, I have only gotten the network to spit out a trail of `"` or `the`. Need to dig in further...
+
 # Training
 
 `--input-dir` is used to read input text files in that directory to train on. No validation datasets are used; we train on everything to have the most data for character occurrence. Use `--model` to pick up where you left off training.
