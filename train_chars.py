@@ -65,4 +65,4 @@ checkpoint = ModelCheckpoint(filepath, save_weights_only=False, monitor='loss', 
 
 # now iterate on our model, and find the best model
 print("Fitting model...")
-model.fit(X, y, epochs=1, batch_size=64, callbacks=[checkpoint])
+model.fit(X, y, epochs=20, batch_size=64, callbacks=[checkpoint])
