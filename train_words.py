@@ -7,6 +7,7 @@ from loader import TextLoader
 import keras.models
 from keras.layers import Dense
 from keras.layers import Dropout
+from keras.layers import Embedding
 from keras.layers import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
@@ -39,8 +40,10 @@ n_patterns = len(dataX)
 
 print( "Total patterns: " + str(n_patterns))
 
-# reshape X to be [samples, time steps, features]
-X = numpy.reshape(numpy.array(dataX), (n_patterns, seq_length, 1))
+# (ONLY FOR LSTM input) reshape X to be [samples, time steps, features]
+#X = numpy.reshape(numpy.array(dataX), (n_patterns, seq_length, 1))
+# for Embedding layer, it takes 2D tensor with shape: (batch_size, sequence_length).
+X = numpy.reshape(numpy.array(dataX), (n_patterns, seq_length))
 # normalize
 X = X / float(n_vocab)
 # one hot encode the output variable
@@ -53,7 +56,8 @@ else:
   lstm_units = 256  # more units here suits higher vocab perhaps
   model = keras.models.Sequential()
   #model.add(LSTM(lstm_units, input_shape=(X.shape[1], X.shape[2]), return_sequences=False))
-  model.add(LSTM(lstm_units, input_shape=(X.shape[1], X.shape[2]), return_sequences=True))
+  model.add(Embedding(n_vocab, 64, input_length=seq_length))
+  model.add(LSTM(lstm_units, return_sequences=True))
   model.add(Dropout(0.2))
   model.add(LSTM(lstm_units))
   model.add(Dropout(0.2))

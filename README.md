@@ -29,3 +29,4 @@ pip install -r requirements.txt
 
 [x] Seed training with an existing model to improve?
 [ ] Add more layers into the network with dropout to prevent overfitting - http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf
+[ ] Look at using embedding layer https://keras.io/layers/embeddings/
